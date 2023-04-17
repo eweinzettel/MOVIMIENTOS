@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using MovimeintoWebAPI.Models;
+using MovimeintoWebAPI.Models.Dto;
 
 namespace MovimeintoWebAPI.Controllers
 {
@@ -22,13 +23,32 @@ namespace MovimeintoWebAPI.Controllers
 
         // GET: api/Centrals
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Central>>> GetCentrals()
+        public async Task<ActionResult<List<CentralDTO>>> GetCentrals()
         {
-          if (_context.Centrals == null)
+          
+            List<CentralDTO> centralDTOs = new List<CentralDTO>();
+            
+
+            if (_context.Centrals == null)
           {
               return NotFound();
           }
-            return await _context.Centrals.ToListAsync();
+            else 
+            { 
+              foreach (var item in _context.Centrals) 
+              {
+                    CentralDTO DatosCentralDTO = new CentralDTO();
+
+                    DatosCentralDTO.IdCentral = item.IdCentral;
+                    DatosCentralDTO.CentralNombre = item.CentralNombre;
+                    DatosCentralDTO.CentralIndicativo = item.CentralIndicativo;                
+
+                    centralDTOs.Add(DatosCentralDTO);
+              }
+
+                return centralDTOs;
+
+            }
         }
 
         // GET: api/Centrals/5

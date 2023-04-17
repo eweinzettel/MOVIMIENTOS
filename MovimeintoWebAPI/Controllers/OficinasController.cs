@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using MovimeintoWebAPI.Models;
+using MovimeintoWebAPI.Models.Dto;
 
 namespace MovimeintoWebAPI.Controllers
 {
@@ -22,13 +23,40 @@ namespace MovimeintoWebAPI.Controllers
 
         // GET: api/Oficinas
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Oficina>>> GetOficinas()
+        public async Task<ActionResult<List<OficinaDTO>>> GetOficinas()
         {
-          if (_context.Oficinas == null)
-          {
-              return NotFound();
-          }
-            return await _context.Oficinas.ToListAsync();
+            List<OficinaDTO> oficinaDTOs = new List<OficinaDTO>();
+            List<Central> central = new List<Central>();
+
+
+            string _consultaCentral = string.Empty;
+            _consultaCentral = "SELECT Central.IdCentral, Central.CentralIndicativo, Central.CentralNombre";
+
+           // central = context.GetOficinas
+
+
+
+            if (_context.Oficinas == null)
+            {
+                return NotFound();
+            }
+            else
+            {
+                foreach (var item in _context.Oficinas)
+                {
+                    OficinaDTO DatosOficinaDTO = new OficinaDTO();
+
+                    DatosOficinaDTO.IdOficina = item.IdOficina;
+                    DatosOficinaDTO.CentralId = item.CentralId;
+                    //DatosOficinaDTO.CentralIndicativo = item.CentralIndicativo; 
+
+
+                    oficinaDTOs.Add(DatosOficinaDTO);
+                }
+
+                return oficinaDTOs;
+
+            }
         }
 
         // GET: api/Oficinas/5
