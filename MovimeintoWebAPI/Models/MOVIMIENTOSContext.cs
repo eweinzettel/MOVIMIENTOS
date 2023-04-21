@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
-using MovimeintoWebAPI.Models.Dto;
 
 namespace MovimeintoWebAPI.Models
 {
@@ -63,6 +62,12 @@ namespace MovimeintoWebAPI.Models
                 entity.Property(e => e.OficinaTipo)
                     .HasMaxLength(10)
                     .IsFixedLength();
+
+                entity.HasOne(d => d.Central)
+                    .WithMany(p => p.Oficinas)
+                    .HasForeignKey(d => d.CentralId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_Oficina_Central");
             });
 
             OnModelCreatingPartial(modelBuilder);

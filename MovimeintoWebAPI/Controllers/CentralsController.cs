@@ -25,10 +25,8 @@ namespace MovimeintoWebAPI.Controllers
         [HttpGet]
         public async Task<ActionResult<List<CentralDTO>>> GetCentrals()
         {
+          List<CentralDTO> centralDTOs = new List<CentralDTO>();
           
-            List<CentralDTO> centralDTOs = new List<CentralDTO>();
-            
-
             if (_context.Centrals == null)
           {
               return NotFound();
@@ -45,9 +43,7 @@ namespace MovimeintoWebAPI.Controllers
 
                     centralDTOs.Add(DatosCentralDTO);
               }
-
-                return centralDTOs;
-
+                  return centralDTOs;
             }
         }
 
@@ -55,6 +51,8 @@ namespace MovimeintoWebAPI.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<Central>> GetCentral(int id)
         {
+           // CentralDTO centralDTO = new CentralDTO();
+
           if (_context.Centrals == null)
           {
               return NotFound();
@@ -69,17 +67,80 @@ namespace MovimeintoWebAPI.Controllers
             return central;
         }
 
+   // ----------------------- TRAER TODAS LAS OFICINAS DE UNA (1) SOLA CENTRAL ------------
+
+
+        [HttpGet]
+        [Route("GetOficinasdeCentral")]
+        public async Task<ActionResult<List<OficinaDTO>>> GetOficinasdeCentral(int IdCentral)
+        {
+
+            if (_context.Centrals == null)
+            {
+                return NotFound();
+            }
+
+            var central = await _context.Centrals.
+                Include(c => c.Oficinas).
+                FirstOrDefaultAsync(c => c.IdCentral == IdCentral);
+
+           
+            if (central == null)
+            {
+                return NotFound();
+            }
+            
+            try
+            {
+                
+                List<Oficina> listaOficinas = central.Oficinas.ToList();
+
+                List<OficinaDTO> listaOficinasPorCentralDTO = new List<OficinaDTO>();
+
+                foreach(var item in listaOficinas) 
+                { 
+                    
+                    OficinaDTO oficinaDTO = new OficinaDTO();
+                    
+                    oficinaDTO.IdOficina = item.IdOficina;
+                    oficinaDTO.CentralId = item.CentralId;
+                    oficinaDTO.CentralIndicativo = item.Central.CentralIndicativo;
+                    oficinaDTO.CentralNombre = item.Central.CentralNombre;
+                    oficinaDTO.OficinaTipo = item.OficinaTipo;
+                    oficinaDTO.OficinaIndicativo = item.OficinaIndicativo;
+                    oficinaDTO.OficinaNombre = item.OficinaNombre;
+
+                    listaOficinasPorCentralDTO.Add(oficinaDTO);
+                }
+
+                // listaOficina es una lista de objetos de tipo oficina y filtramos con el where para que sea unicamente de una determinada central.
+                //var ListaOficina = _context.Oficinas.Include(c => c.Central).ToList(); //.Where(CentralId == IdCentral).ToList();
+
+                return listaOficinasPorCentralDTO;
+            }
+            catch (Exception ex)
+            {
+                await _context.SaveChangesAsync();
+                return BadRequest(ex.Message);
+            }
+
+        }
+
+
+
+
+
         // PUT: api/Centrals/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutCentral(int id, Central central)
+        public async Task<IActionResult> PutCentral(int id, CentralDTO DatosCentralDTO)
         {
-            if (id != central.IdCentral)
+            if (id != DatosCentralDTO.IdCentral)
             {
                 return BadRequest();
             }
 
-            _context.Entry(central).State = EntityState.Modified;
+            _context.Entry(DatosCentralDTO).State = EntityState.Modified;
 
             try
             {

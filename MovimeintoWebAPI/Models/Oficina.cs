@@ -10,5 +10,6 @@ namespace MovimeintoWebAPI.Models
         public string OficinaTipo { get; set; } = null!;
         public string OficinaIndicativo { get; set; } = null!;
         public string OficinaNombre { get; set; } = null!;
+        public virtual Central Central { get; set; } = null!;
     }
 }

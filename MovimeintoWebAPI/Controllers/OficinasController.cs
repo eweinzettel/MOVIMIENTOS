@@ -26,38 +26,49 @@ namespace MovimeintoWebAPI.Controllers
         public async Task<ActionResult<List<OficinaDTO>>> GetOficinas()
         {
             List<OficinaDTO> oficinaDTOs = new List<OficinaDTO>();
-            List<Central> central = new List<Central>();
-
-
-            string _consultaCentral = string.Empty;
-            _consultaCentral = "SELECT Central.IdCentral, Central.CentralIndicativo, Central.CentralNombre";
-
-           // central = context.GetOficinas
-
-
-
-            if (_context.Oficinas == null)
+            try
             {
-                return NotFound();
-            }
-            else
-            {
-                foreach (var item in _context.Oficinas)
+                // listaOficina es una lista de objetos de tipo oficina.
+
+                var ListaOficina = _context.Oficinas.Include(c => c.Central).ToList();
+
+                if (_context.Oficinas == null)
                 {
-                    OficinaDTO DatosOficinaDTO = new OficinaDTO();
-
-                    DatosOficinaDTO.IdOficina = item.IdOficina;
-                    DatosOficinaDTO.CentralId = item.CentralId;
-                    //DatosOficinaDTO.CentralIndicativo = item.CentralIndicativo; 
-
-
-                    oficinaDTOs.Add(DatosOficinaDTO);
+                    return NotFound();
                 }
+                else
+                {
+                    foreach (var item in ListaOficina)
+                    {
+                        OficinaDTO DatosOficinaDTO = new OficinaDTO();
 
-                return oficinaDTOs;
+                        DatosOficinaDTO.IdOficina = item.IdOficina;
+                        DatosOficinaDTO.CentralId = item.CentralId;
+                        DatosOficinaDTO.CentralIndicativo = item.Central.CentralIndicativo;
+                        DatosOficinaDTO.CentralNombre = item.Central.CentralNombre;
+                        DatosOficinaDTO.OficinaTipo = item.OficinaTipo;
+                        DatosOficinaDTO.OficinaIndicativo = item.OficinaIndicativo;
+                        DatosOficinaDTO.OficinaNombre = item.OficinaNombre;
 
+                        oficinaDTOs.Add(DatosOficinaDTO);
+                    }
+
+                    await _context.SaveChangesAsync();
+                    return oficinaDTOs;
+                }
             }
+            catch (Exception ex)            {
+
+                await _context.SaveChangesAsync();
+                return BadRequest(ex.Message);
+                
+            }            
         }
+
+        
+
+
+        
 
         // GET: api/Oficinas/5
         [HttpGet("{id}")]
